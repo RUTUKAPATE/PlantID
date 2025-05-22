@@ -1,6 +1,7 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { setupSession, requireAuth, registerUser, loginUser } from "./auth";
 import multer from "multer";
 import sharp from "sharp";
 import { GoogleGenerativeAI } from "@google/generative-ai";
@@ -23,6 +24,9 @@ const upload = multer({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Setup session middleware
+  setupSession(app);
+
   // Initialize Gemini AI
   const genAI = new GoogleGenerativeAI(
     process.env.GEMINI_API_KEY || 
@@ -30,6 +34,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
     process.env.API_KEY || 
     ""
   );
+
+  // Authentication routes
+  app.post('/api/auth/register', async (req: Request, res: Response) => {
+    try {
+      const user = await registerUser(req.body);
+      req.session.userId = user.id;
+      req.session.username = user.username;
+      res.json({ user, message: 'Registration successful' });
+    } catch (error) {
+      console.error('Registration error:', error);
+      res.status(400).json({ 
+        message: error instanceof Error ? error.message : 'Registration failed' 
+      });
+    }
+  });
+
+  app.post('/api/auth/login', async (req: Request, res: Response) => {
+    try {
+      const user = await loginUser(req.body);
+      req.session.userId = user.id;
+      req.session.username = user.username;
+      res.json({ user, message: 'Login successful' });
+    } catch (error) {
+      console.error('Login error:', error);
+      res.status(400).json({ 
+        message: error instanceof Error ? error.message : 'Login failed' 
+      });
+    }
+  });
+
+  app.post('/api/auth/logout', (req: Request, res: Response) => {
+    req.session.destroy((err) => {
+      if (err) {
+        return res.status(500).json({ message: 'Could not log out' });
+      }
+      res.json({ message: 'Logout successful' });
+    });
+  });
+
+  app.get('/api/auth/user', async (req: Request, res: Response) => {
+    if (!req.session.userId) {
+      return res.status(401).json({ message: 'Not authenticated' });
+    }
+    
+    try {
+      const user = await storage.getUser(req.session.userId);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      
+      const { password, ...userWithoutPassword } = user;
+      res.json(userWithoutPassword);
+    } catch (error) {
+      console.error('Get user error:', error);
+      res.status(500).json({ message: 'Failed to get user information' });
+    }
+  });
 
   // Plant identification endpoint
   app.post('/api/identify-plant', upload.single('image'), async (req: Request, res: Response) => {

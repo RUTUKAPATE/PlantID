@@ -5,12 +5,13 @@ import { eq } from "drizzle-orm";
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   createPlantIdentification(identification: InsertPlantIdentification): Promise<PlantIdentification>;
-  getPlantIdentificationsByUser(userId?: number): Promise<PlantIdentification[]>;
+  getPlantIdentificationsByUser(userId: number): Promise<PlantIdentification[]>;
   getPlantIdentification(id: number): Promise<PlantIdentification | undefined>;
   createPlantDisease(disease: InsertPlantDisease): Promise<PlantDisease>;
-  getPlantDiseasesByUser(userId?: number): Promise<PlantDisease[]>;
+  getPlantDiseasesByUser(userId: number): Promise<PlantDisease[]>;
   getPlantDisease(id: number): Promise<PlantDisease | undefined>;
 }
 
@@ -22,6 +23,11 @@ export class DatabaseStorage implements IStorage {
 
   async getUserByUsername(username: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user || undefined;
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email));
     return user || undefined;
   }
 
@@ -41,11 +47,8 @@ export class DatabaseStorage implements IStorage {
     return identification;
   }
 
-  async getPlantIdentificationsByUser(userId?: number): Promise<PlantIdentification[]> {
-    if (userId) {
-      return await db.select().from(plantIdentifications).where(eq(plantIdentifications.userId, userId));
-    }
-    return await db.select().from(plantIdentifications);
+  async getPlantIdentificationsByUser(userId: number): Promise<PlantIdentification[]> {
+    return await db.select().from(plantIdentifications).where(eq(plantIdentifications.userId, userId));
   }
 
   async getPlantIdentification(id: number): Promise<PlantIdentification | undefined> {
@@ -61,11 +64,8 @@ export class DatabaseStorage implements IStorage {
     return disease;
   }
 
-  async getPlantDiseasesByUser(userId?: number): Promise<PlantDisease[]> {
-    if (userId) {
-      return await db.select().from(plantDiseases).where(eq(plantDiseases.userId, userId));
-    }
-    return await db.select().from(plantDiseases);
+  async getPlantDiseasesByUser(userId: number): Promise<PlantDisease[]> {
+    return await db.select().from(plantDiseases).where(eq(plantDiseases.userId, userId));
   }
 
   async getPlantDisease(id: number): Promise<PlantDisease | undefined> {
