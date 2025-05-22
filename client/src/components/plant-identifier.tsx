@@ -35,7 +35,9 @@ export function PlantIdentifier() {
       return response.json();
     },
     onSuccess: (data) => {
-      setIdentificationResult(data.identification);
+      const savedIdentification = data.identification;
+      setIdentificationResult(savedIdentification);
+      queryClient.invalidateQueries({ queryKey: ['/api/identifications'] });
       setError(null);
     },
     onError: (error) => {
@@ -60,13 +62,11 @@ export function PlantIdentifier() {
   const { isAuthenticated } = useAuth();
   const { toast } = useToast();
 
+  const [, setLocation] = useLocation();
+  
   const handleIdentify = () => {
     if (!isAuthenticated) {
-      toast({
-        title: "Authentication Required",
-        description: "Please sign in to identify plants",
-        variant: "destructive",
-      });
+      setLocation('/auth');
       return;
     }
 
