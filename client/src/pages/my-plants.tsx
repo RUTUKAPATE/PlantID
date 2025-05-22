@@ -105,9 +105,18 @@ export default function MyPlants() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {plants.map((plant) => (
               <Card key={plant.id} className="shadow-sm hover:shadow-md transition-shadow">
+                {plant.imageUrl && (
+                  <div className="relative h-48 w-full">
+                    <img 
+                      src={plant.imageUrl} 
+                      alt={plant.commonName}
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                  </div>
+                )}
                 <CardHeader className="pb-4">
                   <CardTitle className="text-lg text-slate-800 flex items-start justify-between">
                     <div className="flex-1">

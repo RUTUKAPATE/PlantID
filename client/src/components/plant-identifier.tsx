@@ -38,6 +38,14 @@ export function PlantIdentifier() {
     },
     onSuccess: (data) => {
       const savedIdentification = data.identification;
+      if (data.duplicate) {
+        toast({
+          title: "Plant Already Identified",
+          description: "This plant has already been identified and saved.",
+          variant: "destructive"
+        });
+        return;
+      }
       setIdentificationResult(savedIdentification);
       queryClient.invalidateQueries({ queryKey: ['/api/identifications'] });
       setError(null);

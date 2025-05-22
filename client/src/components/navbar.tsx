@@ -97,7 +97,32 @@ export function Navbar() {
                     </p>
                   </div>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => logout()} disabled={isLoggingOut}>
+                  <Link href="/">
+                    <DropdownMenuItem>
+                      <Camera className="mr-2 h-4 w-4" />
+                      <span>Identify Plant</span>
+                    </DropdownMenuItem>
+                  </Link>
+                  <Link href="/disease-diagnosis">
+                    <DropdownMenuItem>
+                      <Stethoscope className="mr-2 h-4 w-4" />
+                      <span>Plant Doctor</span>
+                    </DropdownMenuItem>
+                  </Link>
+                  <Link href="/my-plants">
+                    <DropdownMenuItem>
+                      <BookOpen className="mr-2 h-4 w-4" />
+                      <span>My Plants</span>
+                    </DropdownMenuItem>
+                  </Link>
+                  <Link href="/profile">
+                    <DropdownMenuItem>
+                      <User className="mr-2 h-4 w-4" />
+                      <span>Edit Profile</span>
+                    </DropdownMenuItem>
+                  </Link>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => logout()} disabled={isLoggingOut} className="text-red-600">
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>{isLoggingOut ? "Logging out..." : "Log out"}</span>
                   </DropdownMenuItem>
