@@ -1,7 +1,3 @@
-` tags. I will pay close attention to indentation, structure, and completeness, and I will avoid using any forbidden words.
-
-```
-<replit_final_file>
 import { useQuery } from "@tanstack/react-query";
 import { useRoute, Link } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
@@ -33,43 +29,21 @@ export default function PlantDetail() {
   const plantId = params?.id;
 
   const { data: plant, isLoading, error } = useQuery<PlantIdentificationResult>({
-    queryKey: ['/api/identifications', plantId],
+    queryKey: ['plant', plantId],
+    queryFn: async () => {
+      const response = await fetch(`/api/identifications/${plantId}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch plant details');
+      }
+      return response.json();
+    },
     enabled: !!plantId,
   });
 
-  const getConfidenceColor = (confidence: number) => {
-    if (confidence >= 80) return "bg-green-500";
-    if (confidence >= 60) return "bg-yellow-500";
-    return "bg-red-500";
-  };
-
-  const getConfidenceText = (confidence: number) => {
-    if (confidence >= 80) return "High";
-    if (confidence >= 60) return "Medium";
-    return "Low";
-  };
-
   const handleShare = () => {
     if (!plant) return;
-
     const shareUrl = `${window.location.origin}/plant/${plant.id}`;
-    const shareData = {
-      title: `Plant Identification: ${plant.commonName}`,
-      text: `Check out this plant I identified: ${plant.commonName} (${plant.scientificName})`,
-      url: shareUrl,
-    };
-
-    if (navigator.share) {
-      navigator.share(shareData).catch(() => {
-        copyToClipboard(shareUrl);
-      });
-    } else {
-      copyToClipboard(shareUrl);
-    }
-  };
-
-  const copyToClipboard = (url: string) => {
-    navigator.clipboard.writeText(url).then(() => {
+    navigator.clipboard.writeText(shareUrl).then(() => {
       toast({
         title: "Link copied!",
         description: "The plant page link has been copied to your clipboard.",
@@ -105,6 +79,12 @@ export default function PlantDetail() {
     );
   }
 
+  const getConfidenceColor = (confidence: number) => {
+    if (confidence >= 80) return "text-green-600";
+    if (confidence >= 60) return "text-yellow-600";
+    return "text-red-600";
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 p-4">
       <div className="max-w-4xl mx-auto">
@@ -133,9 +113,8 @@ export default function PlantDetail() {
                     </Badge>
                   )}
                   <div className="flex items-center space-x-2">
-                    <div className={`w-2 h-2 rounded-full ${getConfidenceColor(plant.confidence)}`}></div>
-                    <span className="text-sm">
-                      {plant.confidence}% confidence ({getConfidenceText(plant.confidence)})
+                    <span className={`text-sm ${getConfidenceColor(plant.confidence)}`}>
+                      {plant.confidence}% confidence
                     </span>
                   </div>
                 </div>
@@ -151,14 +130,6 @@ export default function PlantDetail() {
                   Basic Information
                 </h2>
                 <div className="space-y-3">
-                  <div className="flex justify-between items-center py-2 border-b border-slate-100">
-                    <span className="text-slate-600">Common Name</span>
-                    <span className="font-medium text-slate-800">{plant.commonName}</span>
-                  </div>
-                  <div className="flex justify-between items-center py-2 border-b border-slate-100">
-                    <span className="text-slate-600">Scientific Name</span>
-                    <span className="font-medium text-slate-800 italic">{plant.scientificName}</span>
-                  </div>
                   {plant.family && (
                     <div className="flex justify-between items-center py-2 border-b border-slate-100">
                       <span className="text-slate-600">Family</span>
@@ -171,6 +142,14 @@ export default function PlantDetail() {
                       <span className="font-medium text-slate-800">{plant.origin}</span>
                     </div>
                   )}
+                  <div className="flex justify-between items-center py-2 border-b border-slate-100">
+                    <span className="text-slate-600">Common Name</span>
+                    <span className="font-medium text-slate-800">{plant.commonName}</span>
+                  </div>
+                  <div className="flex justify-between items-center py-2 border-b border-slate-100">
+                    <span className="text-slate-600">Scientific Name</span>
+                    <span className="font-medium text-slate-800 italic">{plant.scientificName}</span>
+                  </div>
                   <div className="flex justify-between items-center py-2">
                     <span className="text-slate-600">Confidence</span>
                     <span className="font-medium text-green-600">{plant.confidence}%</span>
@@ -243,11 +222,11 @@ export default function PlantDetail() {
                   <Lightbulb className="text-amber-500 mr-2 h-5 w-5" />
                   Pro Tips
                 </h2>
-                <ul className="space-y-2 text-slate-600">
+                <ul className="space-y-2">
                   {plant.careTips.map((tip, index) => (
                     <li key={index} className="flex items-start">
                       <CheckCircle className="text-green-600 mr-2 mt-0.5 h-4 w-4 flex-shrink-0" />
-                      <span className="text-sm">{tip}</span>
+                      <span className="text-sm text-slate-600">{tip}</span>
                     </li>
                   ))}
                 </ul>
