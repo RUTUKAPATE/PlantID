@@ -50,31 +50,34 @@ export default function PlantDetail() {
   const handleShare = () => {
     if (!plant) return;
     
+    const shareUrl = `${window.location.origin}/plant/${plant.id}`;
     const shareData = {
       title: `Plant Identification: ${plant.commonName}`,
-      text: `I identified this plant as ${plant.commonName} (${plant.scientificName}) using PlantID! Confidence: ${plant.confidence}%`,
+      text: `Check out this plant I identified: ${plant.commonName} (${plant.scientificName})`,
+      url: shareUrl,
     };
 
     if (navigator.share) {
       navigator.share(shareData).catch(() => {
-        // Fallback to copying text
-        copyToClipboard(shareData.text);
+        // Fallback to copying URL
+        copyToClipboard(shareUrl);
       });
     } else {
-      copyToClipboard(shareData.text);
+      // Copy URL to clipboard for non-mobile devices
+      copyToClipboard(shareUrl);
     }
   };
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text).then(() => {
+  const copyToClipboard = (url: string) => {
+    navigator.clipboard.writeText(url).then(() => {
       toast({
-        title: "Copied to clipboard!",
-        description: "Plant identification details have been copied to your clipboard.",
+        title: "Link copied!",
+        description: "The plant page link has been copied to your clipboard.",
       });
     }).catch(() => {
       toast({
-        title: "Share information",
-        description: text,
+        title: "Share this link",
+        description: url,
         variant: "default",
       });
     });

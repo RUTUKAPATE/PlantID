@@ -75,26 +75,28 @@ export function PlantIdentifier() {
   const handleShareResult = () => {
     if (!identificationResult) return;
     
+    const shareUrl = `${window.location.origin}/plant/${identificationResult.id}`;
     const shareData = {
       title: `Plant Identification: ${identificationResult.commonName}`,
-      text: `I identified this plant as ${identificationResult.commonName} (${identificationResult.scientificName}) using PlantID! Confidence: ${identificationResult.confidence}%`,
+      text: `Check out this plant I identified: ${identificationResult.commonName} (${identificationResult.scientificName})`,
+      url: shareUrl,
     };
 
     if (navigator.share) {
       navigator.share(shareData).catch(() => {
-        // Fallback to copying text
-        navigator.clipboard.writeText(shareData.text).then(() => {
-          alert('Plant details copied to clipboard!');
+        // Fallback to copying URL
+        navigator.clipboard.writeText(shareUrl).then(() => {
+          alert('Plant page link copied to clipboard!');
         }).catch(() => {
-          alert(`Share this: ${shareData.text}`);
+          alert(`Share this link: ${shareUrl}`);
         });
       });
     } else {
-      // Copy to clipboard for non-mobile devices
-      navigator.clipboard.writeText(shareData.text).then(() => {
-        alert('Plant details copied to clipboard!');
+      // Copy URL to clipboard for non-mobile devices
+      navigator.clipboard.writeText(shareUrl).then(() => {
+        alert('Plant page link copied to clipboard!');
       }).catch(() => {
-        alert(`Share this: ${shareData.text}`);
+        alert(`Share this link: ${shareUrl}`);
       });
     }
   };
