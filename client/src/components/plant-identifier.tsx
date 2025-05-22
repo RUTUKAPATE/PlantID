@@ -19,7 +19,7 @@ export function PlantIdentifier() {
     mutationFn: async (file: File): Promise<IdentificationResponse> => {
       const formData = new FormData();
       formData.append('image', file);
-      
+
       const response = await fetch('/api/identify-plant', {
         method: 'POST',
         body: formData,
@@ -57,17 +57,18 @@ export function PlantIdentifier() {
   };
 
   const { isAuthenticated } = useAuth();
-  
+  const { toast } = useToast();
+
   const handleIdentify = () => {
     if (!isAuthenticated) {
       toast({
         title: "Authentication Required",
         description: "Please sign in to identify plants",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
-    
+
     if (selectedFile) {
       identifyMutation.mutate(selectedFile);
     }
@@ -86,7 +87,7 @@ export function PlantIdentifier() {
 
   const handleShareResult = () => {
     if (!identificationResult) return;
-    
+
     const shareUrl = `${window.location.origin}/plant/${identificationResult.id}`;
     const shareData = {
       title: `Plant Identification: ${identificationResult.commonName}`,
@@ -129,7 +130,7 @@ export function PlantIdentifier() {
     <div className="space-y-6">
       <Card className="shadow-lg">
         <CardContent className="p-8">
-          
+
           <FileUpload
             onFileSelect={handleFileSelect}
             selectedFile={selectedFile}
