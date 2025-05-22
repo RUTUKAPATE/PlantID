@@ -1,5 +1,9 @@
+` tags. I will pay close attention to indentation, structure, and completeness, and I will avoid using any forbidden words.
+
+```
+<replit_final_file>
 import { useQuery } from "@tanstack/react-query";
-import { useRoute } from "wouter";
+import { useRoute, Link } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -18,10 +22,8 @@ import {
   Share2,
   ArrowLeft,
   CheckCircle,
-  AlertTriangle,
-  Copy
+  AlertTriangle
 } from "lucide-react";
-import { Link } from "wouter";
 import { PlantIdentificationResult } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 
@@ -49,7 +51,7 @@ export default function PlantDetail() {
 
   const handleShare = () => {
     if (!plant) return;
-    
+
     const shareUrl = `${window.location.origin}/plant/${plant.id}`;
     const shareData = {
       title: `Plant Identification: ${plant.commonName}`,
@@ -59,11 +61,9 @@ export default function PlantDetail() {
 
     if (navigator.share) {
       navigator.share(shareData).catch(() => {
-        // Fallback to copying URL
         copyToClipboard(shareUrl);
       });
     } else {
-      // Copy URL to clipboard for non-mobile devices
       copyToClipboard(shareUrl);
     }
   };
@@ -74,97 +74,40 @@ export default function PlantDetail() {
         title: "Link copied!",
         description: "The plant page link has been copied to your clipboard.",
       });
-    }).catch(() => {
-      toast({
-        title: "Share this link",
-        description: url,
-        variant: "default",
-      });
     });
   };
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-50">
-        <header className="bg-white shadow-sm border-b border-slate-200">
-          <div className="max-w-4xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
-            <div className="flex items-center space-x-3">
-              <Link href="/my-plants">
-                <Button variant="ghost" size="sm" className="text-slate-600 hover:text-slate-800">
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Back to My Plants
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </header>
-
-        <main className="max-w-4xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-          <Card className="shadow-lg">
-            <div className="bg-gradient-to-r from-green-600 to-emerald-600 p-8">
-              <Skeleton className="h-8 w-64 bg-white/20 mb-2" />
-              <Skeleton className="h-6 w-48 bg-white/20 mb-4" />
-              <div className="flex space-x-3">
-                <Skeleton className="h-6 w-20 bg-white/20" />
-                <Skeleton className="h-6 w-24 bg-white/20" />
-              </div>
-            </div>
-            <CardContent className="p-8">
-              <div className="grid md:grid-cols-2 gap-8">
-                <div className="space-y-4">
-                  <Skeleton className="h-6 w-32" />
-                  {[...Array(4)].map((_, i) => (
-                    <Skeleton key={i} className="h-4 w-full" />
-                  ))}
-                </div>
-                <div className="space-y-4">
-                  <Skeleton className="h-6 w-24" />
-                  {[...Array(3)].map((_, i) => (
-                    <div key={i} className="bg-slate-50 rounded-lg p-4">
-                      <Skeleton className="h-5 w-20 mb-2" />
-                      <Skeleton className="h-4 w-full" />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </CardContent>
+      <div className="min-h-screen bg-slate-50 p-4">
+        <div className="max-w-4xl mx-auto">
+          <Skeleton className="h-8 w-32 mb-6" />
+          <Card>
+            <Skeleton className="h-64" />
           </Card>
-        </main>
+        </div>
       </div>
     );
   }
 
   if (error || !plant) {
     return (
-      <div className="min-h-screen bg-slate-50">
-        <header className="bg-white shadow-sm border-b border-slate-200">
-          <div className="max-w-4xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
-            <div className="flex items-center space-x-3">
-              <Link href="/my-plants">
-                <Button variant="ghost" size="sm" className="text-slate-600 hover:text-slate-800">
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Back to My Plants
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </header>
-
-        <main className="max-w-4xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-slate-50 p-4">
+        <div className="max-w-4xl mx-auto">
           <Alert variant="destructive">
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription>
               Plant not found or failed to load. Please try again.
             </AlertDescription>
           </Alert>
-        </main>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <main className="max-w-4xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-slate-50 p-4">
+      <div className="max-w-4xl mx-auto">
         <div className="mb-6">
           <Link href="/my-plants">
             <Button variant="ghost" size="sm" className="text-slate-600 hover:text-slate-800">
@@ -173,8 +116,8 @@ export default function PlantDetail() {
             </Button>
           </Link>
         </div>
-        <Card className="overflow-hidden shadow-lg">
-          {/* Header */}
+
+        <Card className="overflow-hidden shadow-lg mb-6">
           <div className="bg-gradient-to-r from-green-600 to-emerald-600 p-8 text-white">
             <div className="flex items-center space-x-4">
               <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
@@ -202,8 +145,6 @@ export default function PlantDetail() {
 
           <CardContent className="p-8">
             <div className="grid md:grid-cols-2 gap-8">
-              
-              {/* Basic Information */}
               <div>
                 <h2 className="text-xl font-semibold text-slate-800 mb-4 flex items-center">
                   <Info className="text-green-600 mr-2 h-5 w-5" />
@@ -237,14 +178,12 @@ export default function PlantDetail() {
                 </div>
               </div>
 
-              {/* Care Guide */}
               <div>
                 <h2 className="text-xl font-semibold text-slate-800 mb-4 flex items-center">
                   <Heart className="text-green-600 mr-2 h-5 w-5" />
                   Care Guide
                 </h2>
                 <div className="space-y-4">
-                  
                   {plant.wateringInstructions && (
                     <div className="bg-blue-50 rounded-lg p-4">
                       <div className="flex items-center mb-2">
@@ -294,13 +233,10 @@ export default function PlantDetail() {
                       <p className="text-slate-600 text-sm">{plant.soilRequirements}</p>
                     </div>
                   )}
-
                 </div>
               </div>
-
             </div>
 
-            {/* Pro Tips */}
             {plant.careTips && plant.careTips.length > 0 && (
               <div className="mt-8 bg-slate-50 rounded-lg p-6">
                 <h2 className="text-lg font-semibold text-slate-800 mb-3 flex items-center">
@@ -318,7 +254,6 @@ export default function PlantDetail() {
               </div>
             )}
 
-            {/* Share Button */}
             <div className="mt-8 flex justify-center">
               <Button 
                 onClick={handleShare}
@@ -328,10 +263,9 @@ export default function PlantDetail() {
                 Share Plant Details
               </Button>
             </div>
-
           </CardContent>
         </Card>
-      </main>
+      </div>
     </div>
   );
 }
