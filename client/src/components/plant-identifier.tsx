@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
+import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -55,7 +56,18 @@ export function PlantIdentifier() {
     setIdentificationResult(null);
   };
 
+  const { isAuthenticated } = useAuth();
+  
   const handleIdentify = () => {
+    if (!isAuthenticated) {
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to identify plants",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     if (selectedFile) {
       identifyMutation.mutate(selectedFile);
     }
