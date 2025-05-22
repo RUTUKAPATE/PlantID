@@ -271,7 +271,7 @@ export default function PlantDetail() {
                     <div className="bg-red-50 rounded-lg p-4">
                       <div className="flex items-center mb-2">
                         <Thermometer className="text-red-500 mr-2 h-4 w-4" />
-                        <h3 className="font-semibent text-slate-800">Temperature</h3>
+                        <h3 className="font-semibold text-slate-800">Temperature</h3>
                       </div>
                       <p className="text-slate-600 text-sm">{plant.temperatureRange}</p>
                     </div>
