@@ -20,7 +20,20 @@ export default function Home() {
 
         {/* Plant Identifier Component */}
         <section className="mb-12">
-          <PlantIdentifier />
+          {isAuthenticated ? (
+            <PlantIdentifier />
+          ) : (
+            <Card className="p-6 text-center">
+              <h3 className="text-xl font-semibold mb-4">Sign in to Identify Plants</h3>
+              <p className="text-gray-600 mb-4">Create an account or sign in to start identifying plants</p>
+              <Link href="/auth">
+                <Button>
+                  <User className="mr-2 h-4 w-4" />
+                  Sign In
+                </Button>
+              </Link>
+            </Card>
+          )}
         </section>
 
         {/* Feature Highlights */}

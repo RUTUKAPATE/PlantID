@@ -28,9 +28,10 @@ function Router() {
 function AppContent() {
   const { isLoading } = useAuth();
   const [location] = useLocation();
+  const isAuthPage = location === '/auth';
 
   // Only show loading for authenticated routes
-  if (isLoading && location !== '/') {
+  if (isLoading && !isAuthPage) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-green-600"></div>
