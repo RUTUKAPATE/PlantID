@@ -1,6 +1,12 @@
 import { PlantIdentifier } from "@/components/plant-identifier";
 import { Card, CardContent } from "@/components/ui/card";
-import { Leaf, Zap, Database, Heart } from "lucide-react";
+import { Leaf, Zap, Database, Heart, User } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Link } from "wouter";
+import { useAuth } from "@/hooks/useAuth";
+
+export default function Home() {
+  const { isAuthenticated } = useAuth();
 import { useAuth } from "@/hooks/useAuth";
 
 export default function Home() {
