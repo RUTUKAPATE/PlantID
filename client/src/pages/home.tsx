@@ -1,3 +1,4 @@
+
 import { PlantIdentifier } from "@/components/plant-identifier";
 import { Card, CardContent } from "@/components/ui/card";
 import { Leaf, Zap, Database, Heart, User } from "lucide-react";
@@ -7,12 +8,9 @@ import { useAuth } from "@/hooks/useAuth";
 
 export default function Home() {
   const { isAuthenticated } = useAuth();
-import { useAuth } from "@/hooks/useAuth";
-
-export default function Home() {
+  
   return (
     <div className="min-h-screen bg-slate-50">
-
       {/* Main Content */}
       <main className="max-w-4xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
         
