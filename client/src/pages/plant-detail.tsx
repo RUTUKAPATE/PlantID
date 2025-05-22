@@ -164,20 +164,15 @@ export default function PlantDetail() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <header className="bg-white shadow-sm border-b border-slate-200">
-        <div className="max-w-4xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
-          <div className="flex items-center space-x-3">
-            <Link href="/my-plants">
-              <Button variant="ghost" size="sm" className="text-slate-600 hover:text-slate-800">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to My Plants
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </header>
-
       <main className="max-w-4xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        <div className="mb-6">
+          <Link href="/my-plants">
+            <Button variant="ghost" size="sm" className="text-slate-600 hover:text-slate-800">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to My Plants
+            </Button>
+          </Link>
+        </div>
         <Card className="overflow-hidden shadow-lg">
           {/* Header */}
           <div className="bg-gradient-to-r from-green-600 to-emerald-600 p-8 text-white">
