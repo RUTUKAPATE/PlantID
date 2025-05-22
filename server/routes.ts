@@ -170,7 +170,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Save identification to storage
       const identificationData = {
-        userId: null, // No user system for now
+        userId: req.session.userId || null,
         commonName: plantData.commonName,
         scientificName: plantData.scientificName,
         family: plantData.family || null,
@@ -215,9 +215,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get plant identifications history
-  app.get('/api/identifications', async (req: Request, res: Response) => {
+  app.get('/api/identifications', requireAuth, async (req: Request, res: Response) => {
     try {
-      const identifications = await storage.getPlantIdentificationsByUser();
+      const identifications = await storage.getPlantIdentificationsByUser(req.session.userId!);
       res.json(identifications);
     } catch (error) {
       console.error('Failed to fetch identifications:', error);
@@ -325,7 +325,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Save diagnosis to storage
       const diagnosisData = {
-        userId: null, // No user system for now
+        userId: req.session.userId || null,
         plantName: diseaseData.plantName || 'Unknown Plant',
         diseaseName: diseaseData.diseaseName,
         diseaseType: diseaseData.diseaseType,
@@ -370,9 +370,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get plant disease diagnoses history
-  app.get('/api/diagnoses', async (req: Request, res: Response) => {
+  app.get('/api/diagnoses', requireAuth, async (req: Request, res: Response) => {
     try {
-      const diagnoses = await storage.getPlantDiseasesByUser();
+      const diagnoses = await storage.getPlantDiseasesByUser(req.session.userId!);
       res.json(diagnoses);
     } catch (error) {
       console.error('Failed to fetch diagnoses:', error);
