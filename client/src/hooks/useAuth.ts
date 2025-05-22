@@ -69,17 +69,22 @@ export function useAuth() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
+      const result = await response.json();
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Registration failed');
+        throw new Error(result.message || 'Registration failed');
       }
-      return response.json();
+      return result;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['auth'] });
       toast({
         title: "Success",
         description: "Registered successfully",
+      });
+      // After successful registration, automatically log in
+      loginMutation.mutate({
+        username: data.user.username,
+        password: (registerForm.getValues() as RegisterData).password
       });
     },
     onError: (error: Error) => {
