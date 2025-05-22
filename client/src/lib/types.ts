@@ -19,3 +19,25 @@ export interface IdentificationResponse {
   success: boolean;
   identification: PlantIdentificationResult;
 }
+
+export interface PlantDiseaseResult {
+  id: number;
+  plantName: string;
+  diseaseName: string;
+  diseaseType: 'disease' | 'pest' | 'deficiency' | 'environmental' | 'healthy';
+  severity: 'mild' | 'moderate' | 'severe';
+  confidence: number;
+  symptoms: string[];
+  causes: string[];
+  treatmentOptions: string[];
+  preventionTips: string[];
+  immediateActions: string[];
+  affectedParts: string[];
+  imageUrl?: string;
+  createdAt: string;
+}
+
+export interface DiagnosisResponse {
+  success: boolean;
+  diagnosis: PlantDiseaseResult;
+}

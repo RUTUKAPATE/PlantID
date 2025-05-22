@@ -1,4 +1,4 @@
-import { users, plantIdentifications, type User, type InsertUser, type PlantIdentification, type InsertPlantIdentification } from "@shared/schema";
+import { users, plantIdentifications, plantDiseases, type User, type InsertUser, type PlantIdentification, type InsertPlantIdentification, type PlantDisease, type InsertPlantDisease } from "@shared/schema";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
 
@@ -9,6 +9,9 @@ export interface IStorage {
   createPlantIdentification(identification: InsertPlantIdentification): Promise<PlantIdentification>;
   getPlantIdentificationsByUser(userId?: number): Promise<PlantIdentification[]>;
   getPlantIdentification(id: number): Promise<PlantIdentification | undefined>;
+  createPlantDisease(disease: InsertPlantDisease): Promise<PlantDisease>;
+  getPlantDiseasesByUser(userId?: number): Promise<PlantDisease[]>;
+  getPlantDisease(id: number): Promise<PlantDisease | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -48,6 +51,26 @@ export class DatabaseStorage implements IStorage {
   async getPlantIdentification(id: number): Promise<PlantIdentification | undefined> {
     const [identification] = await db.select().from(plantIdentifications).where(eq(plantIdentifications.id, id));
     return identification || undefined;
+  }
+
+  async createPlantDisease(insertDisease: InsertPlantDisease): Promise<PlantDisease> {
+    const [disease] = await db
+      .insert(plantDiseases)
+      .values(insertDisease)
+      .returning();
+    return disease;
+  }
+
+  async getPlantDiseasesByUser(userId?: number): Promise<PlantDisease[]> {
+    if (userId) {
+      return await db.select().from(plantDiseases).where(eq(plantDiseases.userId, userId));
+    }
+    return await db.select().from(plantDiseases);
+  }
+
+  async getPlantDisease(id: number): Promise<PlantDisease | undefined> {
+    const [disease] = await db.select().from(plantDiseases).where(eq(plantDiseases.id, id));
+    return disease || undefined;
   }
 }
 

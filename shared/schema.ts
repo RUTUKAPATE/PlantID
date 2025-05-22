@@ -26,6 +26,24 @@ export const plantIdentifications = pgTable("plant_identifications", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const plantDiseases = pgTable("plant_diseases", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id"),
+  plantName: text("plant_name").notNull(),
+  diseaseName: text("disease_name").notNull(),
+  diseaseType: text("disease_type").notNull(), // 'disease', 'pest', 'deficiency', 'environmental'
+  severity: text("severity").notNull(), // 'mild', 'moderate', 'severe'
+  confidence: real("confidence").notNull(),
+  symptoms: text("symptoms").array(),
+  causes: text("causes").array(),
+  treatmentOptions: text("treatment_options").array(),
+  preventionTips: text("prevention_tips").array(),
+  immediateActions: text("immediate_actions").array(),
+  affectedParts: text("affected_parts").array(),
+  imageUrl: text("image_url"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
@@ -36,7 +54,14 @@ export const insertPlantIdentificationSchema = createInsertSchema(plantIdentific
   createdAt: true,
 });
 
+export const insertPlantDiseaseSchema = createInsertSchema(plantDiseases).omit({
+  id: true,
+  createdAt: true,
+});
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type InsertPlantIdentification = z.infer<typeof insertPlantIdentificationSchema>;
 export type PlantIdentification = typeof plantIdentifications.$inferSelect;
+export type InsertPlantDisease = z.infer<typeof insertPlantDiseaseSchema>;
+export type PlantDisease = typeof plantDiseases.$inferSelect;
