@@ -20,7 +20,7 @@ export default function DiseaseDiagnosis() {
 
   const handleShareResult = () => {
     if (!diagnosisResult) return;
-    
+
     const shareUrl = `${window.location.origin}/diagnosis/${diagnosisResult.id}`;
     const shareData = {
       title: `Plant Health Diagnosis: ${diagnosisResult.diseaseName}`,
@@ -83,39 +83,10 @@ export default function DiseaseDiagnosis() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b border-slate-200">
-        <div className="max-w-4xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <Link href="/">
-                <Button variant="ghost" size="sm" className="text-slate-600 hover:text-slate-800">
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Back to Home
-                </Button>
-              </Link>
-            </div>
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center">
-                <Activity className="text-white h-6 w-6" />
-              </div>
-              <h1 className="text-2xl font-bold text-slate-800">Plant Health Diagnosis</h1>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Link href="/my-plants">
-                <Button variant="outline" size="sm" className="text-slate-600 hover:text-slate-800">
-                  <Leaf className="h-4 w-4 mr-2" />
-                  My Plants
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </header>
 
       {/* Main Content */}
       <main className="max-w-4xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-        
+
         {/* Hero Section */}
         <section className="text-center mb-12">
           <h2 className="text-4xl font-bold text-slate-800 mb-4">Diagnose Plant Health Issues</h2>
@@ -133,7 +104,7 @@ export default function DiseaseDiagnosis() {
         <section className="mb-12">
           <h3 className="text-2xl font-bold text-slate-800 text-center mb-8">What We Can Detect</h3>
           <div className="grid md:grid-cols-4 gap-6">
-            
+
             <div className="text-center">
               <div className="w-16 h-16 bg-red-600/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <AlertTriangle className="text-red-600 h-8 w-8" />
