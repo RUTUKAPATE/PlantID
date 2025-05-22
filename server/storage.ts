@@ -1,4 +1,6 @@
 import { users, plantIdentifications, type User, type InsertUser, type PlantIdentification, type InsertPlantIdentification } from "@shared/schema";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
@@ -9,58 +11,44 @@ export interface IStorage {
   getPlantIdentification(id: number): Promise<PlantIdentification | undefined>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  private plantIdentifications: Map<number, PlantIdentification>;
-  private currentUserId: number;
-  private currentPlantId: number;
-
-  constructor() {
-    this.users = new Map();
-    this.plantIdentifications = new Map();
-    this.currentUserId = 1;
-    this.currentPlantId = 1;
-  }
-
+export class DatabaseStorage implements IStorage {
   async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user || undefined;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.currentUserId++;
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
+    const [user] = await db
+      .insert(users)
+      .values(insertUser)
+      .returning();
     return user;
   }
 
   async createPlantIdentification(insertIdentification: InsertPlantIdentification): Promise<PlantIdentification> {
-    const id = this.currentPlantId++;
-    const identification: PlantIdentification = {
-      ...insertIdentification,
-      id,
-      createdAt: new Date(),
-    };
-    this.plantIdentifications.set(id, identification);
+    const [identification] = await db
+      .insert(plantIdentifications)
+      .values(insertIdentification)
+      .returning();
     return identification;
   }
 
   async getPlantIdentificationsByUser(userId?: number): Promise<PlantIdentification[]> {
-    const identifications = Array.from(this.plantIdentifications.values());
     if (userId) {
-      return identifications.filter(i => i.userId === userId);
+      return await db.select().from(plantIdentifications).where(eq(plantIdentifications.userId, userId));
     }
-    return identifications;
+    return await db.select().from(plantIdentifications);
   }
 
   async getPlantIdentification(id: number): Promise<PlantIdentification | undefined> {
-    return this.plantIdentifications.get(id);
+    const [identification] = await db.select().from(plantIdentifications).where(eq(plantIdentifications.id, id));
+    return identification || undefined;
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
