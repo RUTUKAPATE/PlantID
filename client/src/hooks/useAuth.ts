@@ -28,6 +28,7 @@ export function useAuth() {
     },
     retry: false,
     refetchOnWindowFocus: false,
+    enabled: window.location.pathname !== '/',
   });
 
   const loginMutation = useMutation({
