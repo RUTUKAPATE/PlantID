@@ -68,20 +68,34 @@ export function PlantIdentifier() {
   };
 
   const handleSaveResult = () => {
-    // TODO: Implement save functionality
-    alert('Plant saved to your collection!');
+    // Plant is already automatically saved to database when identified
+    alert('Plant saved to your collection! Check "My Plants" to see all your identifications.');
   };
 
   const handleShareResult = () => {
-    // TODO: Implement share functionality
-    if (navigator.share && identificationResult) {
-      navigator.share({
-        title: `Plant Identification: ${identificationResult.commonName}`,
-        text: `I identified this plant as ${identificationResult.commonName} (${identificationResult.scientificName}) using PlantID!`,
-        url: window.location.href,
-      }).catch(console.error);
+    if (!identificationResult) return;
+    
+    const shareData = {
+      title: `Plant Identification: ${identificationResult.commonName}`,
+      text: `I identified this plant as ${identificationResult.commonName} (${identificationResult.scientificName}) using PlantID! Confidence: ${identificationResult.confidence}%`,
+    };
+
+    if (navigator.share) {
+      navigator.share(shareData).catch(() => {
+        // Fallback to copying text
+        navigator.clipboard.writeText(shareData.text).then(() => {
+          alert('Plant details copied to clipboard!');
+        }).catch(() => {
+          alert(`Share this: ${shareData.text}`);
+        });
+      });
     } else {
-      alert('Sharing functionality would be implemented here.');
+      // Copy to clipboard for non-mobile devices
+      navigator.clipboard.writeText(shareData.text).then(() => {
+        alert('Plant details copied to clipboard!');
+      }).catch(() => {
+        alert(`Share this: ${shareData.text}`);
+      });
     }
   };
 

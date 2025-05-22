@@ -2,6 +2,7 @@ import { PlantIdentifier } from "@/components/plant-identifier";
 import { Card, CardContent } from "@/components/ui/card";
 import { Leaf, Zap, Database, Heart, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Link } from "wouter";
 
 export default function Home() {
   return (
@@ -16,9 +17,14 @@ export default function Home() {
               </div>
               <h1 className="text-2xl font-bold text-slate-800">PlantID</h1>
             </div>
-            <Button variant="ghost" size="icon" className="text-slate-600 hover:text-slate-800">
-              <Menu className="h-6 w-6" />
-            </Button>
+            <div className="flex items-center space-x-2">
+              <Link href="/my-plants">
+                <Button variant="outline" size="sm" className="text-slate-600 hover:text-slate-800">
+                  <Leaf className="h-4 w-4 mr-2" />
+                  My Plants
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </header>
