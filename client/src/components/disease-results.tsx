@@ -2,12 +2,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { 
-  Activity, 
-  AlertTriangle, 
-  Bug, 
-  Droplets, 
-  Leaf, 
+import {
+  Activity,
+  AlertTriangle,
+  Bug,
+  Droplets,
+  Leaf,
   ShieldCheck,
   Clock,
   Target,
@@ -26,10 +26,10 @@ interface DiseaseResultsProps {
   onShareResult?: () => void;
 }
 
-export function DiseaseResults({ 
-  result, 
-  onDiagnoseAnother, 
-  onShareResult 
+export function DiseaseResults({
+  result,
+  onDiagnoseAnother,
+  onShareResult
 }: DiseaseResultsProps) {
   const getSeverityColor = (severity: string) => {
     if (severity === 'mild') return "bg-yellow-500";
@@ -76,15 +76,19 @@ export function DiseaseResults({
     <div className="space-y-6">
       <Card className="overflow-hidden shadow-lg">
         {/* Header */}
-        <div className={`bg-gradient-to-r ${getTypeColor(result.diseaseType)} p-8 text-white`}>
-          <div className="flex items-center space-x-4">
-            <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
-              {getTypeIcon(result.diseaseType)}
+        <div className={`bg-gradient-to-r ${getTypeColor(result.diseaseType)} p-6 sm:p-8 text-white`}>
+          <div className="flex flex-col sm:flex-row items-start space-y-0 sm:space-x-4">
+            <div className="flex flex-row items-start space-x-4">
+              <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mb-2 sm:mb-0">
+                {getTypeIcon(result.diseaseType)}
+              </div>
+              <div className="flex flex-col items-start">
+                <h3 className="text-xl sm:text-2xl font-bold mb-1">{result.diseaseName}</h3>
+                <p className="text-white/80 text-base sm:text-lg">{result.plantName}</p>
+              </div>
             </div>
-            <div className="flex-1">
-              <h3 className="text-2xl font-bold mb-1">{result.diseaseName}</h3>
-              <p className="text-white/80 text-lg">{result.plantName}</p>
-              <div className="flex items-center mt-3 space-x-3">
+            <div className="flex-1 w-full">
+              <div className="flex flex-wrap items-center mt-3 gap-2">
                 <Badge variant="secondary" className="bg-white/20 text-white border-white/30 capitalize">
                   {result.diseaseType}
                 </Badge>
@@ -102,16 +106,16 @@ export function DiseaseResults({
           </div>
         </div>
 
-        <CardContent className="p-8">
-          <div className="grid lg:grid-cols-2 gap-8">
-            
+        <CardContent className="p-4 sm:p-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
             {/* Symptoms & Affected Parts */}
             <div>
-              <h4 className="text-xl font-semibold text-slate-800 mb-4 flex items-center">
+              <h4 className="text-lg sm:text-xl font-semibold text-slate-800 mb-4 flex items-center">
                 <Target className="text-red-600 mr-2 h-5 w-5" />
                 Symptoms & Affected Areas
               </h4>
-              
+
               {result.symptoms && result.symptoms.length > 0 && (
                 <div className="mb-6">
                   <h5 className="font-semibold text-slate-700 mb-2">Observed Symptoms:</h5>
@@ -142,11 +146,11 @@ export function DiseaseResults({
 
             {/* Causes */}
             <div>
-              <h4 className="text-xl font-semibold text-slate-800 mb-4 flex items-center">
+              <h4 className="text-lg sm:text-xl font-semibold text-slate-800 mb-4 flex items-center">
                 <Lightbulb className="text-amber-600 mr-2 h-5 w-5" />
                 Potential Causes
               </h4>
-              
+
               {result.causes && result.causes.length > 0 && (
                 <ul className="space-y-2">
                   {result.causes.map((cause, index) => (
@@ -163,8 +167,8 @@ export function DiseaseResults({
 
           {/* Immediate Actions */}
           {result.immediateActions && result.immediateActions.length > 0 && (
-            <div className="mt-8 bg-red-50 rounded-lg p-6 border-l-4 border-red-500">
-              <h4 className="text-lg font-semibold text-slate-800 mb-3 flex items-center">
+            <div className="mt-8 bg-red-50 rounded-lg p-4 sm:p-6 border-l-4 border-red-500">
+              <h4 className="text-base sm:text-lg font-semibold text-slate-800 mb-3 flex items-center">
                 <Clock className="text-red-600 mr-2 h-5 w-5" />
                 Immediate Actions Required
               </h4>
@@ -181,15 +185,15 @@ export function DiseaseResults({
 
           {/* Treatment Options */}
           {result.treatmentOptions && result.treatmentOptions.length > 0 && (
-            <div className="mt-8 bg-blue-50 rounded-lg p-6">
-              <h4 className="text-lg font-semibold text-slate-800 mb-3 flex items-center">
-                <Activity className="text-blue-600 mr-2 h-5 w-5" />
+            <div className="mt-8 bg-blue-50 rounded-lg p-4 sm:p-6">
+              <h4 className="text-base sm:text-lg font-semibold text-slate-800 mb-3 flex items-center">
+                <Activity className="text-green-600 mr-2 h-5 w-5" />
                 Treatment Options
               </h4>
               <ul className="space-y-2">
                 {result.treatmentOptions.map((treatment, index) => (
                   <li key={index} className="flex items-start">
-                    <CheckCircle className="text-blue-600 mr-2 mt-0.5 h-4 w-4 flex-shrink-0" />
+                    <CheckCircle className="text-green-600 mr-2 mt-0.5 h-4 w-4 flex-shrink-0" />
                     <span className="text-slate-600 text-sm">{treatment}</span>
                   </li>
                 ))}
@@ -199,8 +203,8 @@ export function DiseaseResults({
 
           {/* Prevention Tips */}
           {result.preventionTips && result.preventionTips.length > 0 && (
-            <div className="mt-8 bg-green-50 rounded-lg p-6">
-              <h4 className="text-lg font-semibold text-slate-800 mb-3 flex items-center">
+            <div className="mt-8 bg-green-50 rounded-lg p-4 sm:p-6">
+              <h4 className="text-lg sm:text-lg font-semibold text-slate-800 mb-3 flex items-center">
                 <ShieldCheck className="text-green-600 mr-2 h-5 w-5" />
                 Prevention Tips
               </h4>
@@ -218,16 +222,16 @@ export function DiseaseResults({
           {/* Action Buttons */}
           <div className="mt-8 flex flex-col sm:flex-row gap-4">
             {onShareResult && (
-              <Button 
+              <Button
                 onClick={onShareResult}
-                className="flex-1 bg-blue-600 hover:bg-blue-700"
+                className="flex-1 bg-green-600 hover:bg-green-700"
               >
                 <Share2 className="mr-2 h-4 w-4" />
                 Share Diagnosis
               </Button>
             )}
-            <Button 
-              variant="secondary" 
+            <Button
+              variant="secondary"
               onClick={onDiagnoseAnother}
               className="flex-1"
             >
