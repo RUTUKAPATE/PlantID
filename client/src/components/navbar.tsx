@@ -23,7 +23,7 @@ export function Navbar() {
   };
 
   return (
-    <nav className="border-b bg-white shadow-sm">
+    <nav className="border-b bg-transparent shadow-sm sticky top-0 z-50 backdrop-blur">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-8">
@@ -33,43 +33,6 @@ export function Navbar() {
                 <span className="text-xl font-bold text-gray-900">PlantID</span>
               </div>
             </Link>
-            
-            {isAuthenticated && (
-              <div className="hidden md:flex space-x-6">
-                <Link href="/">
-                  <Button
-                    variant={location === "/" ? "default" : "ghost"}
-                    size="sm"
-                    className="flex items-center space-x-2"
-                  >
-                    <Camera className="h-4 w-4" />
-                    <span>Identify Plant</span>
-                  </Button>
-                </Link>
-                
-                <Link href="/disease-diagnosis">
-                  <Button
-                    variant={location === "/disease-diagnosis" ? "default" : "ghost"}
-                    size="sm"
-                    className="flex items-center space-x-2"
-                  >
-                    <Stethoscope className="h-4 w-4" />
-                    <span>Plant Doctor</span>
-                  </Button>
-                </Link>
-                
-                <Link href="/my-plants">
-                  <Button
-                    variant={location === "/my-plants" ? "default" : "ghost"}
-                    size="sm"
-                    className="flex items-center space-x-2"
-                  >
-                    <BookOpen className="h-4 w-4" />
-                    <span>My Plants</span>
-                  </Button>
-                </Link>
-              </div>
-            )}
           </div>
 
           <div className="flex items-center space-x-4">
@@ -92,7 +55,7 @@ export function Navbar() {
                         : user?.username
                       }
                     </p>
-                    <p className="text-xs leading-none text-muted-foreground">
+                    <p className="text-xs leading-none text-muted-foreground truncate whitespace-nowrap pb-1">
                       {user?.email}
                     </p>
                   </div>
@@ -130,7 +93,7 @@ export function Navbar() {
               </DropdownMenu>
             ) : (
               <Link href="/auth">
-                <Button size="sm">
+                <Button size="sm" className="bg-green-600 hover:bg-green-700">
                   <User className="mr-2 h-4 w-4" />
                   Sign In
                 </Button>
