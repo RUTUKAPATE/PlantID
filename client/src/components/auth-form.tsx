@@ -115,7 +115,7 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
                   )}
                 </div>
                 
-                <Button type="submit" className="w-full" disabled={isLoggingIn}>
+                <Button type="submit" className="w-full bg-green-600 hover:bg-green-700" disabled={isLoggingIn}>
                   {isLoggingIn ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -202,7 +202,7 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
                   )}
                 </div>
                 
-                <Button type="submit" className="w-full" disabled={isRegistering}>
+                <Button type="submit" className="w-full bg-green-600 hover:bg-green-700" disabled={isRegistering}>
                   {isRegistering ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
