@@ -13,6 +13,15 @@ export interface User {
   updatedAt: string;
 }
 
+export interface UpdateProfileData {
+  username: string;
+  firstName: string;
+  lastName: string;
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}
+
 export function useAuth() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -73,7 +82,8 @@ export function useAuth() {
       if (!response.ok) {
         throw new Error(result.message || 'Registration failed');
       }
-      return result;
+      // Attach the password to the result for auto-login
+      return { ...result, password: data.password };
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['auth'] });
@@ -82,9 +92,10 @@ export function useAuth() {
         description: "Registered successfully",
       });
       // After successful registration, automatically log in
+      // Use the password from the registration form, not from the backend
       loginMutation.mutate({
         username: data.user.username,
-        password: (registerForm.getValues() as RegisterData).password
+        password: data.password
       });
     },
     onError: (error: Error) => {
@@ -113,16 +124,47 @@ export function useAuth() {
     },
   });
 
+  // Add updateProfile mutation
+  const updateProfileMutation = useMutation({
+    mutationFn: async (data: UpdateProfileData) => {
+      const response = await fetch('/api/auth/profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.message || 'Profile update failed');
+      }
+      return result;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['auth'] });
+      toast({
+        title: "Success",
+        description: "Profile updated successfully",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   return {
     user,
     isLoading,
     isAuthenticated: !!user,
     error,
-    login: loginMutation.mutate,
-    register: registerMutation.mutate,
+    login: loginMutation.mutateAsync,
+    register: registerMutation.mutateAsync,
     logout: logoutMutation.mutate,
     isLoggingIn: loginMutation.isPending,
     isRegistering: registerMutation.isPending,
     isLoggingOut: logoutMutation.isPending,
+    updateProfile: updateProfileMutation.mutateAsync,
   };
 }
