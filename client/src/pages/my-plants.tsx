@@ -13,7 +13,6 @@ import { useEffect } from "react";
 export default function MyPlants() {
   const { isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
-  const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -27,9 +26,9 @@ export default function MyPlants() {
   }
 
   const { data: plants, isLoading, error } = useQuery<PlantIdentificationResult[]>({
-  queryKey: [`${apiUrl}/api/my-plants`],
+    queryKey: ["api/my-plants"],
   queryFn: async () => {
-    const res = await fetch(`${apiUrl}/api/my-plants`, { credentials: "include" });
+    const res = await fetch("/api/my-plants", { credentials: "include" });
     if (!res.ok) throw new Error("Failed to fetch saved plants");
     return res.json();
   },
@@ -39,7 +38,7 @@ export default function MyPlants() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const res = await fetch(`${apiUrl}/api/my-plants/${id}`, {
+      const res = await fetch(`/api/my-plants/${id}`, {
         method: "DELETE",
         credentials: "include",
       });
@@ -49,7 +48,7 @@ export default function MyPlants() {
       return id;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`${apiUrl}/api/my-plants`] });
+      queryClient.invalidateQueries({ queryKey: ['/api/my-plants'] });
     },
   });
 

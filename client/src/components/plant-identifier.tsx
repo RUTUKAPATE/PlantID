@@ -20,10 +20,9 @@ export function PlantIdentifier() {
   const [error, setError] = useState<string | null>(null);
   const queryClient = useQueryClient();
   const [savedPlantIds, setSavedPlantIds] = useState<number[]>([]);
-  const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
   useEffect(() => {
-  fetch(`${apiUrl}/api/my-plants`, { credentials: "include" })
+  fetch("/api/my-plants", { credentials: "include" })
     .then(res => res.json())
     .then(data => {
       if (Array.isArray(data)) {
@@ -39,7 +38,7 @@ export function PlantIdentifier() {
       const formData = new FormData();
       formData.append('image', file);
 
-      const response = await fetch(`${apiUrl}/api/identify-plant`, {
+      const response = await fetch("/api/identify-plant", {
         method: 'POST',
         body: formData,
         credentials: 'include',
@@ -63,7 +62,7 @@ export function PlantIdentifier() {
         return;
       }
       setIdentificationResult(savedIdentification);
-      queryClient.invalidateQueries({ queryKey: [`${apiUrl}/api/identifications`] });
+      queryClient.invalidateQueries({ queryKey: ["/api/identifications"] });
       setError(null);
     },
     onError: (error) => {
@@ -118,7 +117,7 @@ const handleSaveResult = async () => {
     return;
   }
   try {
-    const res = await fetch(`${apiUrl}/api/my-plants`, {
+    const res = await fetch("/api/my-plants", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -131,7 +130,7 @@ const handleSaveResult = async () => {
       variant: "default"
     });
     setSavedPlantIds((prev) => [...prev, identificationResult.id]); // update local state
-    queryClient.invalidateQueries({ queryKey: [`${apiUrl}/api/my-plants`] });
+    queryClient.invalidateQueries({ queryKey: ["/api/my-plants"] });
   } catch {
     toast({
       title: "Error",

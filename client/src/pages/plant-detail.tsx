@@ -27,12 +27,11 @@ export default function PlantDetail() {
   const [match, params] = useRoute("/plant/:id");
   const { toast } = useToast();
   const plantId = params?.id;
-  const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
   const { data: plant, isLoading, error } = useQuery<PlantIdentificationResult>({
     queryKey: ['plant', plantId],
     queryFn: async () => {
-      const response = await fetch(`${apiUrl}/api/identifications/${plantId}`);
+      const response = await fetch(`/api/identifications/${plantId}`);
       if (!response.ok) {
         throw new Error('Failed to fetch plant details');
       }

@@ -15,14 +15,13 @@ interface PlantDiseaseDetectorProps {
 export function PlantDiseaseDetector({ onDiagnosisComplete }: PlantDiseaseDetectorProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
-  
+
   const diagnosisMutation = useMutation({
     mutationFn: async (file: File): Promise<DiagnosisResponse> => {
       const formData = new FormData();
       formData.append('image', file);
       
-      const response = await fetch(`${apiUrl}/api/diagnose-plant`, {
+      const response = await fetch('/api/diagnose-plant', {
         method: 'POST',
         body: formData,
         credentials: 'include',
