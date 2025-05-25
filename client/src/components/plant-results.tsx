@@ -24,13 +24,15 @@ interface PlantResultsProps {
   onIdentifyAnother: () => void;
   onSaveResult?: () => void;
   onShareResult?: () => void;
+  isAlreadySaved?: boolean;
 }
 
 export function PlantResults({ 
   result, 
   onIdentifyAnother, 
   onSaveResult, 
-  onShareResult 
+  onShareResult,
+  isAlreadySaved, 
 }: PlantResultsProps) {
   const getConfidenceColor = (confidence: number) => {
     if (confidence >= 80) return "bg-green-500";
@@ -50,9 +52,16 @@ export function PlantResults({
         {/* Header */}
         <div className="bg-gradient-to-r from-green-600 to-emerald-600 p-8 text-white">
           <div className="flex items-center space-x-4">
-            <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
+            {result.imageUrl && (
+                <img
+                  src={result.imageUrl}
+                  alt={result.commonName}
+                  className="w-16 h-16 rounded-full object-cover"
+                />
+            )}
+            {/* <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
               <Leaf className="h-8 w-8" />
-            </div>
+            </div> */}
             <div className="flex-1">
               <h3 className="text-2xl font-bold mb-1">{result.commonName}</h3>
               <p className="text-white/80 text-lg italic">{result.scientificName}</p>
@@ -196,10 +205,11 @@ export function PlantResults({
             {onSaveResult && (
               <Button 
                 onClick={onSaveResult}
-                className="flex-1 bg-green-600 hover:bg-green-700"
+                disabled={isAlreadySaved}
+                className={`flex-1 bg-green-600 hover:bg-green-700 ${isAlreadySaved ? "opacity-60 cursor-not-allowed" : ""}`}
               >
                 <Bookmark className="mr-2 h-4 w-4" />
-                Save to My Plants
+                {isAlreadySaved ? "Already Saved" : "Save to My Plants"}
               </Button>
             )}
             {onShareResult && (
