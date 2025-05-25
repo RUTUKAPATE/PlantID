@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
@@ -12,11 +12,26 @@ import { PlantResults } from "./plant-results";
 import { Loader2, AlertTriangle, Search } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { PlantIdentificationResult, IdentificationResponse } from "@/lib/types";
+import { useQueryClient } from "@tanstack/react-query";
 
 export function PlantIdentifier() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [identificationResult, setIdentificationResult] = useState<PlantIdentificationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+  const [savedPlantIds, setSavedPlantIds] = useState<number[]>([]);
+
+  useEffect(() => {
+  fetch('/api/my-plants', { credentials: "include" })
+    .then(res => res.json())
+    .then(data => {
+      if (Array.isArray(data)) {
+        setSavedPlantIds(data.filter(Boolean).map((plant: any) => plant.id));
+      } else {
+        setSavedPlantIds([]);
+      }
+    });
+}, []);
 
   const identifyMutation = useMutation({
     mutationFn: async (file: File): Promise<IdentificationResponse> => {
@@ -91,10 +106,39 @@ export function PlantIdentifier() {
     setError(null);
   };
 
-  const handleSaveResult = () => {
-    // Plant is already automatically saved to database when identified
-    alert('Plant saved to your collection! Check "My Plants" to see all your identifications.');
-  };
+const handleSaveResult = async () => {
+  if (!identificationResult) return;
+  if (savedPlantIds.includes(identificationResult.id)) {
+    toast({
+      title: "Already Saved",
+      description: "This plant is already in your collection.",
+      variant: "default"
+    });
+    return;
+  }
+  try {
+    const res = await fetch("/api/my-plants", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ plantIdentificationId: identificationResult.id }),
+    });
+    if (!res.ok) throw new Error("Failed to save plant");
+    toast({
+      title: "Plant Saved",
+      description: 'Plant saved to your collection! Check "My Plants" to see all your saved plants.',
+      variant: "default"
+    });
+    setSavedPlantIds((prev) => [...prev, identificationResult.id]); // update local state
+    queryClient.invalidateQueries({ queryKey: ['/api/my-plants'] });
+  } catch {
+    toast({
+      title: "Error",
+      description: "Failed to save plant.",
+      variant: "destructive"
+    });
+  }
+};
 
   const handleShareResult = () => {
     if (!identificationResult) return;
@@ -129,10 +173,11 @@ export function PlantIdentifier() {
   if (identificationResult) {
     return (
       <PlantResults
-        result={identificationResult}
-        onIdentifyAnother={handleIdentifyAnother}
-        onSaveResult={handleSaveResult}
-        onShareResult={handleShareResult}
+      result={identificationResult}
+      onIdentifyAnother={handleIdentifyAnother}
+      onSaveResult={handleSaveResult}
+      onShareResult={handleShareResult}
+      isAlreadySaved={savedPlantIds.includes(identificationResult.id)}
       />
     );
   }
