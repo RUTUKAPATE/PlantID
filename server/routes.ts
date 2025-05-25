@@ -1,12 +1,23 @@
-import type { Express, Request, Response } from "express";
+import express, { type Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupSession, requireAuth, registerUser, loginUser } from "./auth";
 import multer from "multer";
 import sharp from "sharp";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { insertPlantIdentificationSchema, insertPlantDiseaseSchema } from "@shared/schema";
+import { insertPlantIdentificationSchema, insertPlantDiseaseSchema, insertContactMessageSchema, contactMessages, userSavedPlants, plantIdentifications } from "@shared/schema";
 import { z } from "zod";
+import bcrypt from "bcrypt"; 
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+import nodemailer from "nodemailer";
+import { db } from "./db";
+import { and, eq } from "drizzle-orm";
+
+// Add these lines at the top of your file
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Configure multer for file uploads
 const upload = multer({
@@ -24,6 +35,7 @@ const upload = multer({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  app.use('/uploads', express.static(path.join(__dirname, "..", "uploads")));
   // Setup session middleware
   setupSession(app);
 
@@ -34,6 +46,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
     process.env.API_KEY || 
     ""
   );
+
+app.post('/api/contact', async (req, res) => {
+  const { name, email, subject, message } = req.body;
+  if (!email || !message || !name || !subject) {
+    return res.status(400).json({ message: "Name, email, subject, and message are required." });
+  }
+
+  // Validate input using Zod schema
+  const parse = insertContactMessageSchema.safeParse({ name, email, subject, message });
+  if (!parse.success) {
+    return res.status(400).json({ message: "Invalid input.", errors: parse.error.errors });
+  }
+
+  // Store in Neon DB
+  try {
+    await db.insert(contactMessages).values(parse.data);
+  } catch (dbError) {
+    console.error("DB insert error:", dbError);
+    return res.status(500).json({ message: "Failed to save contact message." });
+  }
+
+  // Configure transporter (use environment variables for real projects)
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    },
+  });
+
+  try {
+    await transporter.sendMail({
+      from: email,
+      to: "rutuja16kapate@gmail.com",
+      subject: subject || "New Contact Message from PlantID",
+      text: `From: ${name} <${email}>\n\n${message}`,
+    });
+    res.json({ message: "Message sent and saved!" });
+  } catch (err) {
+    console.error("Email send error:", err);
+    res.status(500).json({ message: "Failed to send message, but it was saved." });
+  }
+});
 
   // Authentication routes
   app.post('/api/auth/register', async (req: Request, res: Response) => {
@@ -168,6 +223,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
+      // Save image to disk
+      const uploadsDir = path.join(__dirname, "..", "uploads");
+      if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir);
+
+      const fileName = `${Date.now()}_${req.file.originalname}`;
+      const filePath = path.join(uploadsDir, fileName);
+      fs.writeFileSync(filePath, req.file.buffer);
+
+      // Set imageUrl to be accessible from the frontend (you may need to serve this statically)
+      const imageUrl = `/uploads/${fileName}`;
+
       // Save identification to storage
       const identificationData = {
         userId: req.session.userId || null,
@@ -182,7 +248,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         humidityRequirements: plantData.humidityRequirements || null,
         soilRequirements: plantData.soilRequirements || null,
         careTips: plantData.careTips || [],
-        imageUrl: null, // Could implement image storage later
+        imageUrl, // Could implement image storage later
       };
 
       const savedIdentification = await storage.createPlantIdentification(identificationData);
@@ -399,6 +465,146 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: 'Failed to fetch plant diagnosis' });
     }
   });
+
+app.post('/api/my-plants', requireAuth, async (req, res) => {
+  const { plantIdentificationId } = req.body;
+  const userId = req.session.userId;
+  if (typeof userId !== "number") {
+    return res.status(401).json({ message: "User not authenticated" });
+  }
+
+  // Get plant details
+  const plant = await db.query.plantIdentifications.findFirst({
+    where: (pi, { eq }) => eq(pi.id, plantIdentificationId),
+  });
+  if (!plant) {
+    return res.status(404).json({ message: "Plant identification not found" });
+  }
+
+  // Check for duplicate by imageUrl for this user
+  const existing = await db.query.userSavedPlants.findFirst({
+    where: (usp, { eq, and }) =>
+      and(
+        eq(usp.userId, userId),
+        eq(usp.imageUrl, plant.imageUrl ?? "")
+      ),
+  });
+  if (existing) {
+    return res.status(200).json({ success: false, message: "This image has already been saved." });
+  }
+
+  // Insert as usual
+  await db.insert(userSavedPlants).values({
+    userId,
+    plantIdentificationId: plant.id,
+    commonName: plant.commonName,
+    scientificName: plant.scientificName,
+    family: plant.family,
+    origin: plant.origin,
+    confidence: plant.confidence,
+    wateringInstructions: plant.wateringInstructions,
+    lightRequirements: plant.lightRequirements,
+    temperatureRange: plant.temperatureRange,
+    humidityRequirements: plant.humidityRequirements,
+    soilRequirements: plant.soilRequirements,
+    careTips: plant.careTips,
+    imageUrl: plant.imageUrl,
+  });
+  res.json({ success: true });
+});
+
+app.get('/api/my-plants', requireAuth, async (req, res) => {
+  const userId = req.session.userId;
+  if (typeof userId !== "number") {
+    return res.status(401).json({ message: "User not authenticated" });
+  }
+  try {
+    // Adjust this query for your ORM and schema
+    const saved = await db.select()
+      .from(userSavedPlants)
+      .where(eq(userSavedPlants.userId, userId))
+      .leftJoin(plantIdentifications, eq(userSavedPlants.plantIdentificationId, plantIdentifications.id));
+    // Map to just the plant details
+    const plants = saved.map(row => row.plant_identifications);
+    res.json(plants);
+  } catch (err) {
+    console.error("Failed to fetch saved plants:", err);
+    res.status(500).json({ message: "Failed to fetch saved plants" });
+  }
+});
+
+   // Update user profile
+app.put('/api/auth/profile', requireAuth, async (req: Request, res: Response) => {
+  if (!req.session.userId) {
+    return res.status(401).json({ message: 'Not authenticated' });
+  }
+  try {
+    const { username, firstName, lastName, email, currentPassword, newPassword, confirmPassword } = req.body;
+    const updateData: any = { username, firstName, lastName, email };
+
+    // Handle password change logic
+    if (currentPassword || newPassword || confirmPassword) {
+      if (!currentPassword || !newPassword || !confirmPassword) {
+        return res.status(400).json({ message: "All password fields are required." });
+      }
+      if (newPassword !== confirmPassword) {
+        return res.status(400).json({ message: "New passwords do not match." });
+      }
+
+      // Fetch user to check current password
+      const user = await storage.getUser(req.session.userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found." });
+      }
+      const passwordMatch = await bcrypt.compare(currentPassword, user.password);
+      if (!passwordMatch) {
+        return res.status(400).json({ message: "Current password is incorrect." });
+      }
+
+      // Hash and set new password
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      updateData.password = hashedPassword;
+    }
+
+    // Remove undefined fields (optional, but good practice)
+    Object.keys(updateData).forEach(
+      (key) => updateData[key] === undefined && delete updateData[key]
+    );
+
+    const updatedUser = await storage.updateUser(req.session.userId, updateData);
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    const { password, ...userWithoutPassword } = updatedUser;
+    res.json({ user: userWithoutPassword, message: 'Profile updated successfully' });
+  } catch (error) {
+    console.error('Update profile error:', error);
+    res.status(500).json({ message: 'Failed to update profile' });
+  }
+});
+
+app.delete('/api/my-plants/:id', requireAuth, async (req, res) => {
+  const userId = req.session.userId;
+  const plantIdentificationId = parseInt(req.params.id, 10);
+  if (isNaN(plantIdentificationId)) {
+    return res.status(400).json({ message: "Invalid plant identification ID" });
+  }
+  if (typeof userId !== "number") {
+    return res.status(401).json({ message: "User not authenticated" });
+  }
+  try {
+    await db.delete(userSavedPlants).where(
+      and(
+        eq(userSavedPlants.userId, userId),
+        eq(userSavedPlants.plantIdentificationId, plantIdentificationId)
+      )
+    );
+    res.json({ message: "Plant removed from your collection" });
+  } catch (error) {
+    console.error("Failed to remove saved plant:", error);
+    res.status(500).json({ message: "Failed to remove saved plant" });
+  }
+});
 
   const httpServer = createServer(app);
   return httpServer;
