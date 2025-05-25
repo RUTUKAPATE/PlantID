@@ -1,6 +1,6 @@
 import { users, plantIdentifications, plantDiseases, type User, type InsertUser, type PlantIdentification, type InsertPlantIdentification, type PlantDisease, type InsertPlantDisease } from "@shared/schema";
 import { db } from "./db";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
@@ -13,6 +13,7 @@ export interface IStorage {
   createPlantDisease(disease: InsertPlantDisease): Promise<PlantDisease>;
   getPlantDiseasesByUser(userId: number): Promise<PlantDisease[]>;
   getPlantDisease(id: number): Promise<PlantDisease | undefined>;
+  updateUser(userId: number, updateData: Partial<InsertUser>): Promise<User | null>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -72,6 +73,21 @@ export class DatabaseStorage implements IStorage {
     const [disease] = await db.select().from(plantDiseases).where(eq(plantDiseases.id, id));
     return disease || undefined;
   }
+
+  async updateUser(userId: number, updateData: Partial<InsertUser>): Promise<User | null> {
+    const [user] = await db
+      .update(users)
+      .set(updateData)
+      .where(eq(users.id, userId))
+      .returning();
+    return user || null;
+  }
+
+  async deletePlantIdentification(id: number, userId: number): Promise<void> {
+  await db.delete(plantIdentifications).where(
+    and(eq(plantIdentifications.id, id), eq(plantIdentifications.userId, userId))
+  );
+}
 }
 
 export const storage = new DatabaseStorage();
