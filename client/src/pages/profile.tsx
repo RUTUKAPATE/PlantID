@@ -33,17 +33,26 @@ export default function Profile() {
         return;
       }
 
-      await updateProfile(formData);
+      const { username, firstName, lastName, currentPassword, newPassword } = formData;
+      await updateProfile({
+        username,
+        firstName,
+        lastName,
+        currentPassword,
+        newPassword,
+        confirmPassword: formData.confirmPassword,
+      });
       toast({
         title: "Success",
         description: "Profile updated successfully",
       });
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Error",
-        description: "Failed to update profile",
+        description: error?.message || "Failed to update profile",
         variant: "destructive",
       });
+      console.error("Profile update error:", error);
     } finally {
       setIsLoading(false);
     }
@@ -111,7 +120,7 @@ export default function Profile() {
                 </div>
               </div>
 
-              <Button type="submit" className="w-full" disabled={isLoading}>
+              <Button type="submit" className="w-full bg-green-600 hover:bg-green-700" disabled={isLoading}>
                 {isLoading ? "Updating..." : "Update Profile"}
               </Button>
             </form>
