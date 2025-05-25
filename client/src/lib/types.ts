@@ -18,6 +18,7 @@ export interface PlantIdentificationResult {
 export interface IdentificationResponse {
   success: boolean;
   identification: PlantIdentificationResult;
+  duplicate?: boolean;
 }
 
 export interface PlantDiseaseResult {
@@ -40,4 +41,17 @@ export interface PlantDiseaseResult {
 export interface DiagnosisResponse {
   success: boolean;
   diagnosis: PlantDiseaseResult;
+}
+
+export interface LoginData {
+  username: string;
+  password: string;
+}
+
+export interface RegisterData {
+  username: string;
+  email: string;
+  password: string;
+  firstName?: string;
+  lastName?: string;
 }
