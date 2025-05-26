@@ -117,4 +117,8 @@ Preferred communication style: Simple, everyday language.
 - **Image Optimization**: Server-side processing reduces client load
 - **API Rate Limiting**: Implemented through file size limits and validation
 
+<<<<<<< HEAD
 The application follows modern full-stack practices with clear separation of concerns, type safety throughout, and a focus on user experience with responsive design and accessibility features.
+=======
+The application follows modern full-stack practices with clear separation of concerns, type safety throughout, and a focus on user experience with responsive design and accessibility features.
+>>>>>>> 0430de6 (docs: add project README)
