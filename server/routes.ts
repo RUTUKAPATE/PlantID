@@ -35,6 +35,12 @@ const upload = multer({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // server/index.ts or server/routes.ts
+  app.use(express.static(path.join(__dirname, "../client/dist")));
+
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "../client/dist/index.html"));
+  });
   app.use('/uploads', express.static(path.join(__dirname, "..", "uploads")));
   // Setup session middleware
   setupSession(app);
