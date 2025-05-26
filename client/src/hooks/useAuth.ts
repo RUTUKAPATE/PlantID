@@ -29,7 +29,9 @@ export function useAuth() {
   const { data: user, isLoading, error } = useQuery({
     queryKey: ['auth'],
     queryFn: async () => {
-      const response = await fetch('/api/auth/user');
+      const response = await fetch('/api/auth/user', {
+        credentials: 'include',
+      });
       if (!response.ok) {
         if (response.status === 401) {
           return null;
@@ -48,6 +50,7 @@ export function useAuth() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
+        credentials: 'include',
       });
       if (!response.ok) {
         const error = await response.json();
@@ -77,6 +80,7 @@ export function useAuth() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
+        credentials: 'include',
       });
       const result = await response.json();
       if (!response.ok) {
@@ -109,7 +113,7 @@ export function useAuth() {
 
   const logoutMutation = useMutation({
     mutationFn: async () => {
-      const response = await fetch('/api/auth/logout', { method: 'POST' });
+      const response = await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.message || 'Logout failed');
@@ -131,6 +135,7 @@ export function useAuth() {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
+        credentials: 'include',
       });
       const result = await response.json();
       if (!response.ok) {
