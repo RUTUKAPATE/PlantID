@@ -35,12 +35,6 @@ const upload = multer({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // server/index.ts or server/routes.ts
-  app.use(express.static(path.join(__dirname, "../client/dist")));
-
-  app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "../client/dist/index.html"));
-  });
   app.use('/uploads', express.static(path.join(__dirname, "..", "uploads")));
   // Setup session middleware
   setupSession(app);
@@ -610,6 +604,14 @@ app.delete('/api/my-plants/:id', requireAuth, async (req, res) => {
     console.error("Failed to remove saved plant:", error);
     res.status(500).json({ message: "Failed to remove saved plant" });
   }
+});
+
+// Serve static files from the React app
+app.use(express.static(path.join(__dirname, "../client/dist")));
+
+// For any route not handled by your API, serve index.html
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../client/dist/index.html"));
 });
 
   const httpServer = createServer(app);
